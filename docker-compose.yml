@@ -1,0 +1,60 @@
+version: "3.7"
+services:
+  postgres:
+    image: postgres:14
+    container_name: postgresql
+    platform: linux/arm64
+    restart: unless-stopped
+    ports:
+      - ${POSTGRESQL_PORT}:${POSTGRESQL_PORT}
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    env_file: .env
+    networks:
+      - net-services
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+        compress: "true"
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - ${MONGODB_PORT}:${MONGODB_PORT}
+    env_file: .env
+    restart: unless-stopped
+    volumes:
+      - ./data/mongo:/var/lib/mongo/data
+    networks:
+      - net-services
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+        compress: "true"
+  mysql:
+    image: mysql
+    container_name: db-mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    ports:
+      - ${MYSQL_PORT}:${MYSQL_PORT}
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    env_file: .env
+    networks:
+      - net-services
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+        compress: "true"
+
+# Docker Networks
+networks:
+  net-services:
+    driver: bridge
